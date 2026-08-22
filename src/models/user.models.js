@@ -44,17 +44,17 @@ const userSchema = new Schema({
     },
     refreshToken: {
         type: String,
-        required: true
+
     }
 
 }, { timestamps: true })
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
     if (this.isModified("password")) {
         this.password = await bcrypt.hash(this.password, 10)
-        next()
+        return
     } else {
-        return next()
+        return
     }
 })
 userSchema.methods.isPasswordCorrect = async function (password) {
