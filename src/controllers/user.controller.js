@@ -194,10 +194,65 @@ const changeUserPassword = asyncHandler(async (req, res) => {
 
     user.password = newPassword
     await user.save({ validateBeforeSave: false })
+
+    console.log("Password is updated sucseefull")
+
     res.status(200)
         .json(
             new ApiResponse(200, {}, "Password is Change sucsess full")
         )
 
 })
-export { registerUser, loginUser, logoutUser, refreshAccessToken }
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+    res.status(200)
+        .json(
+            new ApiResponse(200, req.user, "current user Fetch successfull")
+        )
+})
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullName, email } = req.body
+    if (!fullName || !email) {
+        throw new ApiError(400, "All field are required ..")
+    }
+
+    const existingUser = await User.findOne({
+        email,
+        _id: { $ne: req.user._id }
+    })
+
+    if (existingUser) {
+        throw new ApiError(409, "Email is already in use")
+    }
+
+    const user = await User.findByIdAndUpdate(req.user?._id,
+        {
+            $set: {
+                fullName: fullName,
+                email: email
+            }
+        },
+        {
+            returnDocument: "after",
+            runValidators: true
+        }
+    ).select("-password -refreshToken")
+
+    return res.status(200)
+        .json(new ApiResponse(200, user, "Account Detail Updated Successfully"))
+})
+
+
+
+
+
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshAccessToken,
+    changeUserPassword,
+    getCurrentUser,
+    updateAccountDetails
+}
