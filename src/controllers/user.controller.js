@@ -46,8 +46,8 @@ const registerUser = asyncHandler(async (req, res) => {
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-    if (!avatar) {
-        throw new ApiError(400, "Avatar File is Required")
+    if (!avatar.url) {
+        throw new ApiError(400, "Error while uploding avatar on claudinary")
     }
     const user = await User.create({
         userName: userName.toLowerCase(),
@@ -238,13 +238,81 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
             runValidators: true
         }
     ).select("-password -refreshToken")
+    console.log("Update Account Details ")
 
     return res.status(200)
         .json(new ApiResponse(200, user, "Account Detail Updated Successfully"))
 })
 
+const updateUserAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.file?.path
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is required ..")
+    }
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
 
+    if (!avatar?.url) {
+        throw new ApiError(500, "Error while uploding on avatar in claudinary")
+    }
 
+    const user = await User.findByIdAndUpdate(req.user?._id,
+        {
+            $set: {
+                avatar: avatar.url
+            }
+        },
+        {
+            returnDocument: "after",
+            runValidators: true
+        }
+    ).select("-password -refreshToken")
+
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+
+    console.log("Avatar is updated sucssesfully :", avatar.url)
+
+    return res.status(200)
+        .json(
+            new ApiResponse(200, user, "Avatar image is Updated success fully")
+        )
+})
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+    const coverImageLocalPath = req.file?.path
+
+    if (!coverImageLocalPath) {
+        throw new ApiError(400, "CoverImage Are Required")
+    }
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if (!coverImage.url) {
+        throw new ApiError(409, "Error while uploding on coverimage in claudinary")
+    }
+    const user = await User.findByIdAndUpdate(req.user?._id,
+        {
+            $set: {
+                coverImage: coverImage.url,
+                runValidators: true
+            }
+        },
+        {
+            returnDocument: "after"
+        }
+    ).select("-password -refreshToken")
+
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+
+    console.log("Cover image is updated successfully :", coverImage.url)
+
+    return res.status(200)
+        .json(
+            new ApiResponse(200, user, "cover image is Updated success fully")
+        )
+})
 
 
 export {
@@ -254,5 +322,7 @@ export {
     refreshAccessToken,
     changeUserPassword,
     getCurrentUser,
-    updateAccountDetails
+    updateAccountDetails,
+    updateUserAvatar,
+    updateUserCoverImage
 }
