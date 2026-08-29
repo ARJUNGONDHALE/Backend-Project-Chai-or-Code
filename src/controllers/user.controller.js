@@ -249,6 +249,9 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required ..")
     }
+
+    // Delete avatar on claudinary this is pending 
+
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
     if (!avatar?.url) {
@@ -285,6 +288,8 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     if (!coverImageLocalPath) {
         throw new ApiError(400, "CoverImage Are Required")
     }
+    // Delete cover image  on claudinary this is pending 
+
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if (!coverImage.url) {
@@ -294,11 +299,12 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
         {
             $set: {
                 coverImage: coverImage.url,
-                runValidators: true
+
             }
         },
         {
-            returnDocument: "after"
+            returnDocument: "after",
+            runValidators: true
         }
     ).select("-password -refreshToken")
 
