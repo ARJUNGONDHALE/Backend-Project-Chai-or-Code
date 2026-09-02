@@ -206,6 +206,7 @@ const changeUserPassword = asyncHandler(async (req, res) => {
 })
 
 const getCurrentUser = asyncHandler(async (req, res) => {
+    console.log("Current User Fetch SuccessFul")
     res.status(200)
         .json(
             new ApiResponse(200, req.user, "current user Fetch successfull")
@@ -324,6 +325,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
     const { userName } = req.params
+    console.log("user name  :", userName)
 
     if (!userName.trim()) {
         throw new ApiError(400, "UserName Is Missing")
@@ -436,6 +438,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         }
     ])
 
+    console.log("Watch History find successfull ")
     return res.status(200)
         .json(new ApiResponse(200, user[0].watchHistory, "Watch history fetch successfully"))
 })
