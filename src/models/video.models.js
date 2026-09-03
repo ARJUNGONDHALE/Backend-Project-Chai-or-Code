@@ -15,7 +15,7 @@ const videoSchema = new Schema(
             type: String,
             required: true
         },
-        descreiption: {
+        description: {
             type: String,
             required: true
         },
@@ -23,7 +23,7 @@ const videoSchema = new Schema(
             type: Number,
             required: true
         },
-        view: {
+        views: {
             type: Number,
             default: 0
         },
